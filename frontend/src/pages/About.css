@@ -1,0 +1,73 @@
+.about-page {
+    padding: 4rem 1.5rem 5rem;
+    max-width: 1000px;
+}
+
+.about-header {
+    text-align: center;
+    margin-bottom: 5rem;
+}
+
+.about-header h1 {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.about-header p {
+    color: var(--color-text-muted);
+    font-size: 1.1rem;
+}
+
+.about-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: center;
+}
+
+.founder-image {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4/5;
+    object-fit: cover;
+    border-radius: 4px;
+}
+
+.about-text-column h2 {
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
+    font-family: var(--font-body);
+    font-weight: 500;
+}
+
+.about-text-column p {
+    color: var(--color-text-muted);
+    font-size: 1.05rem;
+    line-height: 1.8;
+    margin-bottom: 2rem;
+}
+
+.founder-signature {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.founder-name {
+    font-family: var(--font-heading);
+    font-size: 1.5rem;
+    color: var(--color-black) !important;
+    margin-bottom: 0.2rem !important;
+}
+
+.founder-title {
+    font-size: 0.9rem !important;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+@media (max-width: 800px) {
+    .about-content {
+        grid-template-columns: 1fr;
+    }
+}

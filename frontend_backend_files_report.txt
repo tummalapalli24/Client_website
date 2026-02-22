@@ -1,0 +1,78 @@
+=========================================================
+Boutique eCommerce Platform - Detailed File Report
+Date: February 2026
+=========================================================
+
+This document outlines all the major files created or modified during the development of the Boutique eCommerce Platform.
+
+---------------------------------------------------------
+1. FRONTEND FILES (React + Vite)
+Path: /frontend/
+---------------------------------------------------------
+
+Core Application Setup:
+- `src/App.tsx`: The main React Router controller. Set up the entire routing structure, integrating the global Navbar, Footer, public routes, and defining Protected Routes mapping to the AuthContext for both Customer and Admin levels.
+- `src/main.tsx`: Entry point for Vite.
+- `src/index.css`: Global CSS file. Configured core luxury CSS variables (colors: beige, blush, gold), typography styling, and base container classes.
+
+Context Providers:
+- `src/context/AuthContext.tsx`: Manages global user authentication state. Checks `localStorage` for JWTs, communicates with the `api/auth/me` backend route to validate sessions, and provides `login()` and `logout()` functions to the rest of the application.
+
+Navigation & Layout Components:
+- `src/components/Navbar.tsx` & `.css`: A responsive, sticky top navigation bar with luxury branding. Includes a dynamic search overlay triggering route changes to the Shop page, and a mobile hamburger menu.
+- `src/components/Footer.tsx` & `.css`: A comprehensive footer with brand links, secure payment icons, and a newsletter signup form.
+- `src/components/ProtectedRoute.tsx`: A wrapper component for Auth Router. Verifies user status and redirects unauthenticated users to Login, and non-admins away from the Admin panel.
+
+Public Pages:
+- `src/pages/Home.tsx` & `.css`: The landing page featuring a Hero banner, horizontal scrollable "New Arrivals", categorized feature grid, and elegant testimonials.
+- `src/pages/Shop.tsx` & `.css`: A complex eCommerce browsing page. Features dynamic URL search parameters, real-time AJAX filtering (by Category, Size, Price Range, Color, Gender, Availability), and sorting options.
+- `src/pages/Product.tsx` & `.css`: The individual product detail page. Fetches dynamic product data by ID, presents image galleries, handles size/color selection toggles, and provides detailed accordions for descriptions and care instructions.
+- `src/pages/Cart.tsx` & `.css`: The shopping bag interface allowing users to adjust quantities and review their subtotal before checkout.
+- `src/pages/Checkout.tsx` & `.css`: The payment flow interface presenting Stripe Card elements and an alternative Pix integration UI for Brazilian customers.
+- `src/pages/About.tsx` & `.css`: The brand story page.
+- `src/pages/Contact.tsx` & `.css`: The contact form page. Wired up to the backend `api/contact` endpoint for real message delivery, styled luxury forms, and embedded an interactive Google Map.
+- `src/pages/Legal.tsx` & `.css`: Simple Privacy Policy and Terms of Service mockups.
+- `src/pages/Login.tsx` & `.css`: A unified dual-purpose modal/page for User Registration and Sign-In, handling JWT token storage upon success.
+
+Customer & Admin Dashboards:
+- `src/pages/Account.tsx` & `.css`: The secure customer portal displaying recent orders, saved addresses, and wishlist items.
+- `src/pages/admin/AdminLayout.tsx` & `.css`: The structural wrapper for the Admin panel, featuring a fixed side navigation bar tailored for management.
+- `src/pages/admin/AdminProducts.tsx`: The protected inventory management page. Displays a detailed table of backend products, and includes a comprehensive Modal Form capable of executing fully validated POST (Create) and PUT (Update) API requests to the backend SQLite database, as well as handling DELETE operations.
+
+---------------------------------------------------------
+2. BACKEND FILES (Node.js + Express + SQLite)
+Path: /backend/
+---------------------------------------------------------
+
+Core Server:
+- `index.js`: The central Express server file handling the entire backend architecture.
+  * Added `helmet`, `cors`, and `express.json()` security middlewares.
+  * Instantiated the SQLite3 local `database.sqlite` connection.
+  * Handled automatic database schema creation and table provisioning at startup.
+  * Bootstrapped placeholder data for immediate app usage.
+
+Database Schema Definition (within index.js):
+- `products`: Enriched schema holding name, price, description, dynamic JSON strings for colors and sizes arrays, category, gender mapping, and stock quantity tracking.
+- `orders`: Tracking basic financial data and standard/pix statuses.
+- `users`: Protected table storing names, emails, securely hashed passwords via `bcryptjs`, and role management ('customer' vs 'admin').
+
+API Endpoints (within index.js):
+- `GET /api/products`: Advanced query handler parsing URL parameters seamlessly to generate dynamic SQL searches using `LIKE` and bounded ranges to filter the product catalog across multiple intersecting categories.
+- `GET /api/products/:id`: Fetch a dedicated item by standard ID.
+- `POST /api/auth/register`: Receives raw passwords, salting and hashing them prior to secure DB storage. Returns a fresh JWT.
+- `POST /api/auth/login`: Database verification process utilizing `bcrypt.compare`. Returns signed JWT for valid sessions.
+- `GET /api/auth/me`: Validates a provided Bearer JWT token and returns standard user profile information.
+- `POST /api/admin/products`: Parses multipart payload data strings into SQLite rows. Protected by JWT Admin middleware.
+- `PUT /api/admin/products/:id`: Edits explicit rows based on Admin UI modal form submission. Protected by JWT Admin middleware.
+- `DELETE /api/admin/products/:id`: Permanently removes an item from stock. Protected by JWT admin middleware.
+- `POST /api/create-payment-intent`: Integrated with the Stripe API to generate secure client secret handshakes for the checkout.
+- `POST /api/orders`: Finalizes checkout logic to record tracking success.
+- `POST /api/contact`: Connects to `nodemailer` to process inbound website form transmissions into actual automated SMTP email dispatches (uses Ethereal dev environment).
+
+Config:
+- `.env`: Vital environment variable file storing the Server PORT, dummy Stripe API testing secrets, and the highly specific secure JSON Web Token string utilized to sign session certificates.
+- `package.json`: Contains project definitions and runtime Node script targets, plus listed dependencies: `express`, `cors`, `sqlite3`, `bcryptjs`, `jsonwebtoken`, `stripe`, `nodemailer`, and `helmet`.
+
+=========================================================
+End of Report
+=========================================================

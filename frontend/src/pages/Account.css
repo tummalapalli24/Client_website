@@ -1,0 +1,101 @@
+.account-page {
+    padding: 3rem 1.5rem 5rem;
+    max-width: 1200px;
+}
+
+.account-header {
+    margin-bottom: 3rem;
+}
+
+.account-header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.account-header p {
+    color: var(--color-text-muted);
+}
+
+.account-layout {
+    display: grid;
+    grid-template-columns: 250px 1fr;
+    gap: 3rem;
+}
+
+.account-sidebar {
+    padding: 2rem 0;
+    height: fit-content;
+}
+
+.account-nav {
+    display: flex;
+    flex-direction: column;
+}
+
+.account-nav button {
+    background: none;
+    border: none;
+    padding: 1rem 2rem;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 1rem;
+    font-family: var(--font-body);
+    color: var(--color-text-main);
+    cursor: pointer;
+    transition: var(--transition-smooth);
+}
+
+.account-nav button:hover {
+    background-color: var(--color-bg);
+}
+
+.account-nav button.active {
+    border-left: 3px solid var(--color-black);
+    background-color: var(--color-bg);
+    font-weight: 500;
+}
+
+.logout-btn {
+    margin-top: 1rem;
+    color: #b91c1c !important;
+}
+
+.account-content .lux-card {
+    padding: 3rem;
+}
+
+.account-content h2 {
+    font-size: 1.5rem;
+    margin-bottom: 2rem;
+    font-weight: 500;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    padding-bottom: 1rem;
+}
+
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 0;
+    text-align: center;
+}
+
+.empty-icon {
+    color: var(--color-text-muted);
+    opacity: 0.3;
+    margin-bottom: 1.5rem;
+}
+
+.empty-state p {
+    color: var(--color-text-muted);
+    margin-bottom: 2rem;
+}
+
+@media (max-width: 768px) {
+    .account-layout {
+        grid-template-columns: 1fr;
+    }
+}

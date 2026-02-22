@@ -1,0 +1,125 @@
+.admin-layout {
+    display: flex;
+    min-height: 100vh;
+    background-color: #f8f9fa;
+    margin-top: -80px;
+    /* Offset the main app layout padding if needed, or render raw */
+    padding-top: 80px;
+}
+
+.admin-sidebar {
+    width: 260px;
+    background-color: #ffffff;
+    border-right: 1px solid #eaeaea;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 80px;
+    bottom: 0;
+    left: 0;
+}
+
+.admin-brand {
+    padding: 2rem;
+    border-bottom: 1px solid #eaeaea;
+}
+
+.admin-brand h2 {
+    font-size: 1.25rem;
+    font-family: var(--font-heading);
+    margin-bottom: 0.25rem;
+}
+
+.admin-brand p {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+}
+
+.admin-nav {
+    padding: 1.5rem 1rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.admin-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem 1rem;
+    color: var(--color-text-main);
+    text-decoration: none;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+    background: none;
+    border: none;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+    font-family: var(--font-body);
+}
+
+.admin-nav-item:hover,
+.admin-nav-item.active {
+    background-color: var(--color-bg);
+    color: var(--color-black);
+    font-weight: 500;
+}
+
+.admin-logout {
+    padding: 1.5rem 1rem;
+    border-top: 1px solid #eaeaea;
+}
+
+.logout-btn {
+    color: #dc2626;
+}
+
+.logout-btn:hover {
+    background-color: #fef2f2;
+}
+
+.admin-main {
+    flex: 1;
+    margin-left: 260px;
+    padding: 2rem 3rem;
+}
+
+.admin-page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.admin-page-header h1 {
+    font-size: 2rem;
+    font-family: var(--font-heading);
+}
+
+.admin-card {
+    background: #ffffff;
+    border-radius: 8px;
+    padding: 2rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    border: 1px solid #eaeaea;
+}
+
+@media (max-width: 1024px) {
+    .admin-sidebar {
+        width: 80px;
+    }
+
+    .admin-brand h2,
+    .admin-brand p,
+    .admin-nav-item span {
+        display: none;
+    }
+
+    .admin-main {
+        margin-left: 80px;
+        padding: 2rem;
+    }
+}
