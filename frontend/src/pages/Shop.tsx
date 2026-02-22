@@ -254,7 +254,7 @@ const Shop = () => {
                                             {/* Highlight search term if it exists */}
                                             {search ? (
                                                 <span dangerouslySetInnerHTML={{
-                                                    __html: product.name.replace(new RegExp(search, 'gi'), match => `<mark class="highlight">${match}</mark>`)
+                                                    __html: product.name.replace(new RegExp(search, 'gi'), (match: string) => `<mark class="highlight">${match}</mark>`)
                                                 }} />
                                             ) : product.name}
                                         </h3>
