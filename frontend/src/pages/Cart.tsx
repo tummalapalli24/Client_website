@@ -2,38 +2,22 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Trash2, ArrowRight } from 'lucide-react';
 import './Cart.css';
-
-// Dummy cart items
-const CART_ITEMS = [
-    {
-        id: 1,
-        name: 'Silk Velvet Midi Dress',
-        size: 'M',
-        price: 245.00,
-        quantity: 1,
-        image: 'https://images.unsplash.com/photo-1515347619362-73fc365313f8?q=80&w=800&auto=format&fit=crop'
-    },
-    {
-        id: 4,
-        name: 'Cashmere Blend Sweater',
-        size: 'S',
-        price: 185.00,
-        quantity: 2,
-        image: 'https://images.unsplash.com/photo-1434389678232-0678a514d8cd?q=80&w=800&auto=format&fit=crop'
-    }
-];
+import { useCart } from '../context/CartContext';
 
 const Cart = () => {
-    const subtotal = CART_ITEMS.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const { cartItems, removeFromCart, updateQuantity, loading } = useCart();
+    const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     const tax = subtotal * 0.08;
-    const shipping = 15.00; // Flat rate dummy
+    const shipping = subtotal > 0 ? 15.00 : 0; // Flat rate dummy
     const total = subtotal + tax + shipping;
+
+    if (loading) return <div style={{ padding: '100px', textAlign: 'center' }}>Loading cart...</div>;
 
     return (
         <div className="cart-page container animate-fade-in">
-            <h1 className="cart-title">Your Bag ({CART_ITEMS.length})</h1>
+            <h1 className="cart-title">Your Bag ({cartItems.length})</h1>
 
-            {CART_ITEMS.length === 0 ? (
+            {cartItems.length === 0 ? (
                 <div className="empty-cart">
                     <p>Your bag is currently empty.</p>
                     <Link to="/shop" className="btn-primary">Continue Shopping</Link>
@@ -47,22 +31,27 @@ const Cart = () => {
                             <span className="col-total">Total</span>
                         </div>
 
-                        {CART_ITEMS.map((item) => (
-                            <div key={item.id} className="cart-item">
+                        {cartItems.map((item, idx) => (
+                            <div key={item.cart_id || `${item.id}-${idx}`} className="cart-item">
                                 <div className="cart-item-product">
                                     <img src={item.image} alt={item.name} className="cart-item-img" />
                                     <div className="cart-item-info">
                                         <Link to={`/product/${item.id}`} className="cart-item-name">{item.name}</Link>
-                                        <p className="cart-item-size">Size: {item.size}</p>
-                                        <button className="remove-btn"><Trash2 size={14} /> Remove</button>
+                                        <p className="cart-item-size">Size: {item.size} {item.color ? `| Color: ${item.color}` : ''}</p>
+                                        <button
+                                            className="remove-btn"
+                                            onClick={() => removeFromCart(item.cart_id, item.id)}
+                                        >
+                                            <Trash2 size={14} /> Remove
+                                        </button>
                                     </div>
                                 </div>
 
                                 <div className="cart-item-quantity">
                                     <div className="qty-controls-small">
-                                        <button>-</button>
+                                        <button onClick={() => updateQuantity(item.cart_id, item.id, item.quantity - 1)}>-</button>
                                         <span>{item.quantity}</span>
-                                        <button>+</button>
+                                        <button onClick={() => updateQuantity(item.cart_id, item.id, item.quantity + 1)}>+</button>
                                     </div>
                                 </div>
 

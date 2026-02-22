@@ -1,14 +1,19 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ShoppingBag, Search, Menu, User, X } from 'lucide-react';
+import { ShoppingBag, Search, Menu, User, X, Heart } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useCart } from '../context/CartContext';
+import { useWishlist } from '../context/WishlistContext';
 import './Navbar.css';
 
 const Navbar = () => {
     const [searchOpen, setSearchOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const navigate = useNavigate();
     const { user } = useAuth();
+    const { cartItems } = useCart();
+    const { wishlistItems } = useWishlist();
 
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault();
@@ -23,7 +28,7 @@ const Navbar = () => {
             <header className="navbar">
                 <div className="container nav-content">
                     <div className="nav-left">
-                        <button className="menu-btn" aria-label="Menu">
+                        <button className="menu-btn" aria-label="Menu" onClick={() => setMobileMenuOpen(true)}>
                             <Menu size={24} />
                         </button>
                         <div className="nav-links hidden-mobile">
@@ -42,12 +47,16 @@ const Navbar = () => {
                         <button className="icon-btn" aria-label="Search" onClick={() => setSearchOpen(true)}>
                             <Search size={20} />
                         </button>
+                        <Link to={user && user.role !== 'admin' ? '/account?tab=wishlist' : '/wishlist'} className="icon-btn hidden-mobile" aria-label="Wishlist">
+                            <Heart size={20} />
+                            {wishlistItems.length > 0 && <span className="cart-badge">{wishlistItems.length}</span>}
+                        </Link>
                         <Link to={user ? (user.role === 'admin' ? '/admin' : '/account') : '/login'} className="icon-btn hidden-mobile" aria-label="Account">
                             <User size={20} />
                         </Link>
                         <Link to="/cart" className="icon-btn" aria-label="Cart">
                             <ShoppingBag size={20} />
-                            <span className="cart-badge">0</span>
+                            {cartItems.length > 0 && <span className="cart-badge">{cartItems.length}</span>}
                         </Link>
                     </div>
                 </div>
@@ -80,6 +89,23 @@ const Navbar = () => {
                             <button onClick={() => { setSearchTerm('Velvet'); navigate('/shop?search=Velvet'); setSearchOpen(false); }}>Velvet</button>
                             <button onClick={() => { navigate('/shop?category=Dresses'); setSearchOpen(false); }}>Dresses</button>
                         </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Mobile Menu Overlay */}
+            {mobileMenuOpen && (
+                <div className="search-overlay mobile-menu-overlay">
+                    <button className="close-search-btn" onClick={() => setMobileMenuOpen(false)}>
+                        <X size={32} />
+                    </button>
+                    <div className="mobile-menu-content animate-fade-in">
+                        <Link to="/" onClick={() => setMobileMenuOpen(false)}>Home</Link>
+                        <Link to="/shop" onClick={() => setMobileMenuOpen(false)}>Shop</Link>
+                        <Link to="/about" onClick={() => setMobileMenuOpen(false)}>About Us</Link>
+                        <Link to={user ? (user.role === 'admin' ? '/admin' : '/account') : '/login'} onClick={() => setMobileMenuOpen(false)}>
+                            {user ? 'My Account' : 'Sign In'}
+                        </Link>
                     </div>
                 </div>
             )}

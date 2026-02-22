@@ -202,3 +202,33 @@
         display: none;
     }
 }
+
+@media (min-width: 769px) {
+    .menu-btn {
+        display: none;
+    }
+}
+
+.mobile-menu-overlay {
+    justify-content: flex-start;
+    align-items: flex-start;
+    padding: 100px 30px;
+}
+
+.mobile-menu-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    font-size: 2rem;
+    font-family: var(--font-heading);
+}
+
+.mobile-menu-content a {
+    color: var(--color-black);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.mobile-menu-content a:hover {
+    color: var(--color-accent);
+}

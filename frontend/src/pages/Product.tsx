@@ -1,14 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Minus, Plus, Star, ArrowLeft } from 'lucide-react';
+import { Minus, Plus, Star, ArrowLeft, Heart } from 'lucide-react';
+import { useCart } from '../context/CartContext';
+import { useWishlist } from '../context/WishlistContext';
+import ProductReviews from '../components/ProductReviews';
 import './Product.css';
 
 const Product = () => {
     const { id } = useParams();
+    const { addToCart } = useCart();
+    const { isInWishlist, addToWishlist, removeFromWishlist } = useWishlist();
     const [quantity, setQuantity] = useState(1);
     const [selectedSize, setSelectedSize] = useState('');
+    const [selectedColor, setSelectedColor] = useState('');
     const [product, setProduct] = useState<any>(null);
     const [loading, setLoading] = useState(true);
+    const [isAdding, setIsAdding] = useState(false);
 
     useEffect(() => {
         fetch(`http://localhost:5001/api/products/${id}`)
@@ -28,6 +35,7 @@ const Product = () => {
                 }
                 setProduct(data);
                 if (data?.sizes?.length > 0) setSelectedSize(data.sizes[0]);
+                if (data?.colors?.length > 0) setSelectedColor(data.colors[0]);
                 setLoading(false);
             })
             .catch(e => {
@@ -60,14 +68,28 @@ const Product = () => {
                 </div>
 
                 <div className="product-info-panel">
-                    <h1 className="product-title">{product.name}</h1>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                        <h1 className="product-title">{product.name}</h1>
+                        <button
+                            className="icon-btn"
+                            onClick={() => isInWishlist(product.id) ? removeFromWishlist(product.id) : addToWishlist(product)}
+                            aria-label="Add to Wishlist"
+                        >
+                            <Heart size={24} fill={isInWishlist(product.id) ? "var(--color-accent)" : "none"} color={isInWishlist(product.id) ? "var(--color-accent)" : "var(--color-black)"} style={{ transition: 'all 0.3s ease' }} />
+                        </button>
+                    </div>
                     <p className="product-price">${product.price.toFixed(2)}</p>
 
                     <div className="product-rating">
                         <div className="stars">
                             {[1, 2, 3, 4, 5].map(s => <Star key={s} size={14} fill={s <= 4 ? "var(--color-accent)" : "none"} color="var(--color-accent)" />)}
                         </div>
-                        <span className="reviews-count">{product.reviews.length} Reviews</span>
+                        <a href="#reviews" className="reviews-count" onClick={(e) => {
+                            e.preventDefault();
+                            document.getElementById('reviews')?.scrollIntoView({ behavior: 'smooth' });
+                        }} style={{ cursor: 'pointer', textDecoration: 'underline' }}>
+                            {product.reviews?.length || 0} Reviews
+                        </a>
                     </div>
 
                     <div className="product-description">
@@ -104,12 +126,8 @@ const Product = () => {
                                     {product.colors.map((color: string) => (
                                         <button
                                             key={color}
-                                            className="size-btn"
-                                            onClick={(e) => {
-                                                const btns = (e.target as HTMLElement).parentElement?.querySelectorAll('.size-btn');
-                                                btns?.forEach(b => b.classList.remove('active'));
-                                                (e.target as HTMLElement).classList.add('active');
-                                            }}
+                                            className={`size-btn ${selectedColor === color ? 'active' : ''}`}
+                                            onClick={() => setSelectedColor(color)}
                                         >
                                             {color}
                                         </button>
@@ -133,8 +151,25 @@ const Product = () => {
                             Out of Stock
                         </button>
                     ) : (
-                        <button className="btn-primary add-to-cart-large">
-                            Add to Bag - ${(product.price * quantity).toFixed(2)}
+                        <button
+                            className="btn-primary add-to-cart-large"
+                            disabled={isAdding}
+                            onClick={async () => {
+                                setIsAdding(true);
+                                await addToCart({
+                                    id: product.id,
+                                    name: product.name,
+                                    price: product.price,
+                                    image: images[0],
+                                    category: product.category,
+                                    quantity,
+                                    size: selectedSize,
+                                    color: selectedColor
+                                });
+                                setTimeout(() => setIsAdding(false), 500); // UI feedback
+                            }}
+                        >
+                            {isAdding ? 'Adding...' : `Add to Bag - $${(product.price * quantity).toFixed(2)}`}
                         </button>
                     )}
 
@@ -155,20 +190,7 @@ const Product = () => {
                 </div>
             </div>
 
-            <div className="reviews-section">
-                <h2>Customer Reviews</h2>
-                <div className="reviews-list">
-                    {product.reviews.map((review: any) => (
-                        <div key={review.id} className="review-card">
-                            <div className="stars">
-                                {[1, 2, 3, 4, 5].map(s => <Star key={s} size={14} fill={s <= review.rating ? "var(--color-accent)" : "none"} color="var(--color-accent)" />)}
-                            </div>
-                            <h4 className="review-author">{review.author} <span>- {review.date}</span></h4>
-                            <p className="review-text">{review.text}</p>
-                        </div>
-                    ))}
-                </div>
-            </div>
+            <ProductReviews reviews={product.reviews} />
         </div>
     );
 };

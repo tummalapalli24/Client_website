@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Filter, ChevronDown, Loader } from 'lucide-react';
+import { useCart } from '../context/CartContext';
 import './Shop.css';
 
 const CATEGORIES = ['All', 'Dresses', 'Tops', 'Bottoms', 'Accessories'];
@@ -10,6 +11,7 @@ const COLORS = ['Black', 'White', 'Beige', 'Red', 'Blue'];
 
 const Shop = () => {
     const [searchParams, setSearchParams] = useSearchParams();
+    const { addToCart } = useCart();
 
     // UI State
     const [showFilters, setShowFilters] = useState(false);
@@ -243,7 +245,21 @@ const Shop = () => {
                                             <div className="out-of-stock-badge">Sold Out</div>
                                         )}
 
-                                        <div className="product-action" onClick={(e) => { e.preventDefault(); /* dummy add to cart */ }}>
+                                        <div className="product-action" onClick={(e) => {
+                                            e.preventDefault();
+                                            if (product.in_stock) {
+                                                addToCart({
+                                                    id: product.id,
+                                                    name: product.name,
+                                                    price: product.price,
+                                                    image: product.image,
+                                                    category: product.category,
+                                                    size: Array.isArray(product.sizes) && product.sizes.length > 0 ? product.sizes[0] : '',
+                                                    color: Array.isArray(product.colors) && product.colors.length > 0 ? product.colors[0] : '',
+                                                    quantity: 1
+                                                });
+                                            }
+                                        }}>
                                             <button className="add-to-cart-btn" disabled={!product.in_stock}>
                                                 {product.in_stock ? 'Quick Add' : 'Sold Out'}
                                             </button>

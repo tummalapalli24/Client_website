@@ -12,7 +12,7 @@ const AdminProducts = () => {
     const [editingId, setEditingId] = useState<number | null>(null);
     const [formData, setFormData] = useState({
         name: '', price: 0, description: '', category: 'Dresses', gender: 'Women',
-        sizes: '', colors: '', stock_quantity: 0, in_stock: true, image: ''
+        sizes: '', colors: '', stock_quantity: 0, in_stock: true, is_visible: true, image: ''
     });
 
     const fetchProducts = async () => {
@@ -44,13 +44,14 @@ const AdminProducts = () => {
                 colors: product.colors ? product.colors.join(', ') : '',
                 stock_quantity: product.stock_quantity,
                 in_stock: product.in_stock === 1 || product.in_stock === true,
-                image: product.image
+                is_visible: product.is_visible !== 0 && product.is_visible !== false, // Default true if undefined
+                image: product.image // Note: We are keeping the database field named 'image' but it now contains stringified JSON arrays
             });
         } else {
             setEditingId(null);
             setFormData({
                 name: '', price: 0, description: '', category: 'Dresses', gender: 'Women',
-                sizes: '', colors: '', stock_quantity: 0, in_stock: true, image: ''
+                sizes: '', colors: '', stock_quantity: 0, in_stock: true, is_visible: true, image: ''
             });
         }
         setIsModalOpen(true);
@@ -71,10 +72,20 @@ const AdminProducts = () => {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        // Ensure images are formatted as a JSON array string before sending to backend
+        let imgArray = [];
+        if (typeof formData.image === 'string') {
+            imgArray = formData.image.split(',').map(s => s.trim()).filter(Boolean);
+        } else {
+            imgArray = [formData.image];
+        }
+
         const payload = {
             ...formData,
             sizes: formData.sizes.split(',').map(s => s.trim()).filter(Boolean),
             colors: formData.colors.split(',').map(c => c.trim()).filter(Boolean),
+            image: JSON.stringify(imgArray) // Store exactly as array format
         };
 
         const method = editingId ? 'PUT' : 'POST';
@@ -125,32 +136,44 @@ const AdminProducts = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {products.map(p => (
-                                <tr key={p.id} style={{ borderBottom: '1px solid #eaeaea' }}>
-                                    <td style={{ padding: '1rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                                        <img src={p.image} alt={p.name} style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '4px' }} />
-                                        <span style={{ fontWeight: 500 }}>{p.name}</span>
-                                    </td>
-                                    <td style={{ padding: '1rem', color: '#666' }}>{p.category}</td>
-                                    <td style={{ padding: '1rem' }}>${p.price.toFixed(2)}</td>
-                                    <td style={{ padding: '1rem' }}>{p.stock_quantity}</td>
-                                    <td style={{ padding: '1rem' }}>
-                                        <span style={{
-                                            padding: '4px 8px',
-                                            borderRadius: '20px',
-                                            fontSize: '0.8rem',
-                                            backgroundColor: p.in_stock ? '#dcfce7' : '#fee2e2',
-                                            color: p.in_stock ? '#166534' : '#991b1b'
-                                        }}>
-                                            {p.in_stock ? 'Active' : 'Out of Stock'}
-                                        </span>
-                                    </td>
-                                    <td style={{ padding: '1rem', textAlign: 'right', gap: '10px' }}>
-                                        <button className="icon-btn" onClick={() => openModal(p)} style={{ marginRight: '10px' }}><Edit2 size={16} /></button>
-                                        <button className="icon-btn" onClick={() => handleDelete(p.id)} style={{ color: '#dc2626' }}><Trash2 size={16} /></button>
-                                    </td>
-                                </tr>
-                            ))}
+                            {products.map(p => {
+                                let primaryImage = p.image;
+                                try {
+                                    const parsed = JSON.parse(p.image);
+                                    if (Array.isArray(parsed) && parsed.length > 0) {
+                                        primaryImage = parsed[0];
+                                    }
+                                } catch (e) {
+                                    // It's a regular string, leave it alone
+                                }
+
+                                return (
+                                    <tr key={p.id} style={{ borderBottom: '1px solid #eaeaea' }}>
+                                        <td style={{ padding: '1rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                                            <img src={primaryImage} alt={p.name} style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '4px' }} />
+                                            <span style={{ fontWeight: 500 }}>{p.name}</span>
+                                        </td>
+                                        <td style={{ padding: '1rem', color: '#666' }}>{p.category}</td>
+                                        <td style={{ padding: '1rem' }}>${p.price.toFixed(2)}</td>
+                                        <td style={{ padding: '1rem' }}>{p.stock_quantity}</td>
+                                        <td style={{ padding: '1rem' }}>
+                                            <span style={{
+                                                padding: '4px 8px',
+                                                borderRadius: '20px',
+                                                fontSize: '0.8rem',
+                                                backgroundColor: p.in_stock ? '#dcfce7' : '#fee2e2',
+                                                color: p.in_stock ? '#166534' : '#991b1b'
+                                            }}>
+                                                {p.in_stock ? 'Active' : 'Out of Stock'}
+                                            </span>
+                                        </td>
+                                        <td style={{ padding: '1rem', textAlign: 'right', gap: '10px' }}>
+                                            <button className="icon-btn" onClick={() => openModal(p)} style={{ marginRight: '10px' }}><Edit2 size={16} /></button>
+                                            <button className="icon-btn" onClick={() => handleDelete(p.id)} style={{ color: '#dc2626' }}><Trash2 size={16} /></button>
+                                        </td>
+                                    </tr>
+                                );
+                            })}
                         </tbody>
                     </table>
                 )}
@@ -209,8 +232,8 @@ const AdminProducts = () => {
                             </div>
 
                             <div className="input-group">
-                                <label>Image URL</label>
-                                <input type="url" required value={formData.image} onChange={e => setFormData({ ...formData, image: e.target.value })} />
+                                <label>Image URLs (comma separated for gallery, first is primary)</label>
+                                <input type="text" placeholder="https://img1.jpg, https://img2.jpg" required value={formData.image} onChange={e => setFormData({ ...formData, image: e.target.value })} />
                             </div>
 
                             <div style={{ display: 'flex', gap: '1rem' }}>
@@ -227,6 +250,11 @@ const AdminProducts = () => {
                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.5rem' }}>
                                 <input type="checkbox" id="in_stock" checked={formData.in_stock} onChange={e => setFormData({ ...formData, in_stock: e.target.checked })} style={{ width: 'auto' }} />
                                 <label htmlFor="in_stock" style={{ marginBottom: 0 }}>Item is in stock</label>
+                            </div>
+
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.2rem' }}>
+                                <input type="checkbox" id="is_visible" checked={formData.is_visible} onChange={e => setFormData({ ...formData, is_visible: e.target.checked })} style={{ width: 'auto' }} />
+                                <label htmlFor="is_visible" style={{ marginBottom: 0 }}>Visible to customers in store</label>
                             </div>
 
                             <button type="submit" className="btn-primary" style={{ marginTop: '1rem' }}>
