@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import ReactDOM from 'react-dom';
 import { Plus, Edit2, Trash2, X } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -112,7 +113,7 @@ const AdminProducts = () => {
     };
 
     return (
-        <div className="admin-page animate-fade-in relative">
+        <div className="admin-page">
             <div className="admin-page-header">
                 <h1>Product Management</h1>
                 <button className="btn-primary" onClick={() => openModal()} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -180,9 +181,9 @@ const AdminProducts = () => {
             </div>
 
             {/* Modal Overlay */}
-            {isModalOpen && (
-                <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-                    <div className="lux-card animate-fade-in" style={{ width: '100%', maxWidth: '600px', maxHeight: '90vh', overflowY: 'auto', padding: '2rem', position: 'relative' }}>
+            {isModalOpen && ReactDOM.createPortal(
+                <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999 }}>
+                    <div className="lux-card" style={{ width: '100%', maxWidth: '600px', maxHeight: '90vh', overflowY: 'auto', padding: '2rem', position: 'relative', background: '#fff', borderRadius: '8px' }}>
                         <button onClick={() => setIsModalOpen(false)} style={{ position: 'absolute', top: '20px', right: '20px', background: 'none', border: 'none', cursor: 'pointer' }}>
                             <X size={24} />
                         </button>
@@ -262,7 +263,8 @@ const AdminProducts = () => {
                             </button>
                         </form>
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
         </div>
     );
